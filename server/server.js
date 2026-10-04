@@ -34,11 +34,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', app: "JAI's Cart MERN Backend", timestamp: new Date() });
 });
 
-// Serve static React production build for cloud deployment
+// Serve static React production build for cloud deployment (Express 5 compatible)
 const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    return res.sendFile(path.join(distPath, 'index.html'));
+  }
+  next();
 });
 
 app.listen(PORT, () => {
